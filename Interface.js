@@ -1,10 +1,25 @@
 var bowling = new Bowling();
 
+function feedScoreToForm(){
+  document.getElementsByName("game_score")[0].value = bowling.cumulativeScore(bowling.last_resolved_frame) ;
+  
+};
+function disableButtons(){
+  var buttonVector = document.getElementsByClassName("btn");
+  for (var i = 0; i <= 10; i++){
+    buttonVector[i].disabled = true;
+  }
+};
 $(document).ready(function(){
 
   var afterRoll = function(){
     for (var i = 1; i <= bowling.last_resolved_frame; i ++){
       $('#f' + i + 'score').text(bowling.cumulativeScore(i));
+    
+      if ( bowling.last_resolved_frame === 10 ){
+        disableButtons();
+        feedScoreToForm();
+      }
     };
     for (var i = 1; i <= 21; i ++){
       $('.box' + i).text(bowling.scoresArray[i - 1]);
