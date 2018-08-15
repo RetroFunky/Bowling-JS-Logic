@@ -96,11 +96,14 @@ Bowling.prototype.registerRoll = function(rollScore){
   };
   
   function calculate_last_resolved_frame(){
-  	if ( self.frameCounter === 20) {
-  		if (self.rollsArray[self.rollCounter - 1] === 10){
+  	
+    if ( self.frameCounter === 20) {
+  		
+      if (self.rollsArray[self.rollCounter - 1] === 10){
   			self.last_resolved_frame = get_current_frame() - 1;
   			return;
   		}
+    
   	}
   	if ( self.frameCounter == 21) {
   		self.last_resolved_frame = 10;
@@ -146,8 +149,12 @@ Bowling.prototype.registerRoll = function(rollScore){
     } else {console.log("Am ajuns acolo");
       if(self.frameCounter !== 19) {
       if(isSpare() && rollScore !== 0) {
+        if( self.rollsArray[self.rollCounter - 1] + self.rollsArray[self.rollCounter - 2] === 10){
+          pushScore();
+        }
         self.scoresArray.push('/');  
       } else {
+
         pushScore();
       };
     }	else {
