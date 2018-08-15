@@ -3,6 +3,7 @@ var Bowling = function(){
   this.scoresArray = [];
   this.rollCounter = 0;
   this.frameCounter = 1;
+  this.last_resolved_frame = 0;
 };
 
 Bowling.prototype.roll = function(rollScore){
@@ -46,6 +47,7 @@ Bowling.prototype.roll = function(rollScore){
     throwAlert();
   } else {
     self.rollsArray.push(rollScore);
+    console.log(rollScore);
     self.registerRoll(rollScore);
   };
 };
@@ -58,7 +60,7 @@ Bowling.prototype.registerRoll = function(rollScore){
   };
 
   function isStrike(){
-    return rollScore === 10;
+    return rollScore === 10 && self.frameCounter % 2 === 1;
   };
 
   function isFrameEnd(){
@@ -66,7 +68,7 @@ Bowling.prototype.registerRoll = function(rollScore){
   };
 
   function isSpare(){
-    return rollScore + self.scoresArray[self.scoresArray.length - 1] === 10;
+    return rollScore + self.rollsArray[self.rollCounter - 1] === 10;
   };
 
   function decideSpare(){
@@ -75,37 +77,98 @@ Bowling.prototype.registerRoll = function(rollScore){
     } else {
       self.scoresArray.push(rollScore);
     };
-    self.frameCounter ++;
   };
 
+  function get_current_frame(){
+  	return Math.floor(self.frameCounter / 2 ) + self.frameCounter % 2;
+  }
+
+  function was_strike(){
+  	return self.frameCounter >= 3 && self.rollsArray[self.rollCounter - 1] === 10; // - 2?
+  };
+  
+  function was_spare(){
+  	return self.frameCounter >= 3 && !was_strike() && self.rollsArray[self.rollCounter - 1] + self.rollsArray[self.rollCounter - 2] === 10;
+  };
+  
+  function was_double_strike(){
+		return self.last_resolved_frame < get_current_frame() - 2;
+  };
+  
+  function calculate_last_resolved_frame(){
+  	if ( self.frameCounter === 20) {
+  		if (self.rollsArray[self.rollCounter - 1] === 10){
+  			self.last_resolved_frame = get_current_frame() - 1;
+  			return;
+  		}
+  	}
+  	if ( self.frameCounter == 21) {
+  		self.last_resolved_frame = 10;
+  		return; 
+  	}
+	if(self.frameCounter % 2 === 1){
+		if (was_spare()){
+			self.last_resolved_frame = get_current_frame() - 1;
+			return; 
+		};
+		if (was_double_strike()){
+			self.last_resolved_frame = get_current_frame() - 2;
+			return;
+		};
+	}  	else { // sunt pe celula para in frame
+			if(!isSpare() ){ // caz particular double strike
+				console.log("Aici am prezis");
+				self.last_resolved_frame = get_current_frame();
+				return; 
+			}
+			else {
+				self.last_resolved_frame = get_current_frame() - 1;
+				return;
+			}
+		}
+  };
   function pushScore(){
     self.scoresArray.push(rollScore);
   };
 // Ordine gresita if-uri, nu afiseaza X in al 10-lea frame
+
+  var strike_counter = 0 ;
   if (tenthFrame()){
+  	console.log("Am ajuns aici");
     if (rollScore === 10) {
-      self.scoresArray.push('X');
-    } else {
+         if(self.frameCounter === 19 || self.rollsArray[self.rollCounter - 1] !== 0){
+         	 self.scoresArray.push('X');
+         }
+         else{
+         	self.scoresArray.push("/");
+         }
+         // inca o conditie 
+    } else {console.log("Am ajuns acolo");
       if(self.frameCounter !== 19) {
-      if(isSpare()) {
+      if(isSpare() && rollScore !== 0) {
         self.scoresArray.push('/');  
       } else {
         pushScore();
       };
-    };
+    }	else {
+    		pushScore();
+    } ;
   };
-  self.frameCounter++;
 } else if (isStrike()){
 // De bagat X si null in loc de 0
     self.scoresArray.push('X');
     self.scoresArray.push('-');
-    self.frameCounter += 2;
+    strike_counter ++;
   } else if (isFrameEnd()){
     decideSpare();
   } else {
     pushScore();
-    self.frameCounter ++;
   };
+
+  calculate_last_resolved_frame();
+  console.log("CF " + get_current_frame());
+  console.log("LRF "+self.last_resolved_frame);
+  self.frameCounter += 1 + strike_counter;
   self.rollCounter ++;
 };
 
@@ -148,5 +211,3 @@ Bowling.prototype.cumulativeScore = function(frameNumber){
   };
   return score;
 };
-
-Bowling.prototype.last_resolved_frame = 10;
