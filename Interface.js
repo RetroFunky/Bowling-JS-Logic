@@ -4,10 +4,14 @@ function feedScoreToForm(){
   document.getElementsByName("game_score")[0].value = bowling.cumulativeScore(bowling.last_resolved_frame) ;
   
 };
+//@VICTOR AICI E IDU CARE TREBUIE MATCHUI CU BUTONU
+function enableSubmit(){
+  document.getElementById("butonLuca").disabled = false;
+}
 function disableButtons(){
-  var buttonVector = document.getElementsByClassName("btn");
+  var vectorButtons = document.getElementsByClassName("btn");
   for (var i = 0; i <= 10; i++){
-    buttonVector[i].disabled = true;
+    vectorButtons[i].disabled = true;
   }
 };
 $(document).ready(function(){
@@ -19,6 +23,7 @@ $(document).ready(function(){
       if ( bowling.last_resolved_frame === 10 ){
         disableButtons();
         feedScoreToForm();
+        enableSubmit();
       }
     };
     for (var i = 1; i <= 21; i ++){
